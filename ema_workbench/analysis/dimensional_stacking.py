@@ -65,7 +65,7 @@ def discretize(data, nbins=3, with_labels=False):
             column_data = column_data.cat.rename_categories(
                 [x for x in range(1, n + 1)])
             indices = column_data
-            
+
         else:
             if issubclass(entry.type, np.integer):
                 n_unique = column_data.unique().shape[0]
@@ -122,20 +122,25 @@ def plot_line(ax, axis, i, lw, length):
 def plot_category(ax, axis, i, label, pos, level):
     '''helper function for plotting label'''
 
+    if isinstance(label, float):
+        label = f"{label:g}"
+    else:
+        label = f"{label}"
+
     if axis == 0:
         rot = 'horizontal'
-        if (level > 0) & (len(str(label)) > 4):
+        if (level > 0) & (len(str(label)) > 2):
             rot = 'vertical'
-        ax.text(i, pos, label, ha='center', va='center', rotation=rot)
+        ax.text(i, pos, label, ha='center', va='bottom', rotation=rot)
     else:
         rot = 'horizontal'
-        if (level == 0) & (len(str(label)) > 4):
+        if (level == 0) & (len(str(label)) > 2):
             rot = 'vertical'
         ax.text(pos, i, label, ha='center', va='center', rotation=rot)
 
 
 def plot_index(ax, ax_plot, axis, index, plot_labels=True,
-               plot_cats=True):
+               plot_cats=True, hide_lines=False):
     '''helper function for visualizing the hierarchical index
 
     Parameters
@@ -147,7 +152,7 @@ def plot_index(ax, ax_plot, axis, index, plot_labels=True,
               the axes on which the table itself is displayed
     axis : int {0, 1}
            indicates whether we are plotting rows or columns
-    plot_label : bool, optional
+    plot_labels : bool, optional
                  if true, also plot names of uncertain factors
     plot_cats : bool, options
                 if true, plot category names for uncertain factors
@@ -248,10 +253,11 @@ def plot_index(ax, ax_plot, axis, index, plot_labels=True,
                 pos = 1 / (2 * nr_levels) + p / (nr_levels)
                 plot_category(ax, axis, i + offsets[p] * len(index),
                               entry[p], pos, p)
-        if axis:
-            ax_plot.axhline(i, c="w", lw=lw)
-        else:
-            ax_plot.axvline(i, c="w", lw=lw)
+        if not hide_lines:
+            if axis:
+                ax_plot.axhline(i, c="w", lw=lw)
+            else:
+                ax_plot.axvline(i, c="w", lw=lw)
 
 
 def plot_pivot_table(table, plot_labels=True, plot_cats=True,
@@ -278,6 +284,8 @@ def plot_pivot_table(table, plot_labels=True, plot_cats=True,
 
     '''
 
+    hide_lines = kwargs.pop('hide_lines', False)
+
     with sns.axes_style('white'):
 
         fig = plt.figure(figsize=figsize)
@@ -296,7 +304,7 @@ def plot_pivot_table(table, plot_labels=True, plot_cats=True,
 
         # actual plotting
         plot_data = table.values
-        sns.heatmap(plot_data, ax=ax_plot, cbar_ax=cax, cmap=cmap, 
+        sns.heatmap(plot_data, ax=ax_plot, cbar_ax=cax, cmap=cmap,
                     vmin=0, vmax=1, **kwargs)
 
         # set the tick labels
@@ -307,13 +315,15 @@ def plot_pivot_table(table, plot_labels=True, plot_cats=True,
         ax_rows.set_ylim(ax_plot.get_ylim())
         ax_rows.set_xlim(0, 1)
         plot_index(ax_rows, ax_plot, axis=1, index=table.index,
-                   plot_labels=plot_labels, plot_cats=plot_cats)
+                   plot_labels=plot_labels, plot_cats=plot_cats,
+                   hide_lines=hide_lines)
 
         # plot column labeling
         ax_cols.set_xlim(ax_plot.get_xlim())
         ax_cols.set_ylim(0, 1)
         plot_index(ax_cols, ax_plot, axis=0, index=table.columns,
-                   plot_labels=plot_labels, plot_cats=plot_cats)
+                   plot_labels=plot_labels, plot_cats=plot_cats,
+                   hide_lines=hide_lines)
 
     return fig
 
