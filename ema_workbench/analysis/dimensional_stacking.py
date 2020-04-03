@@ -197,7 +197,14 @@ def plot_category(ax, axis, i, label, pos, level):
 
 
 def plot_index(
-    ax, ax_plot, axis, index, plot_labels=True, plot_cats=True, hide_lines=False
+    ax,
+    ax_plot,
+    axis,
+    index,
+    plot_labels=True,
+    plot_cats=True,
+    hide_lines=False,
+    steps=None,
 ):
     """helper function for visualizing the hierarchical index
 
@@ -214,7 +221,8 @@ def plot_index(
         if true, also plot names of uncertain factors
     plot_cats : bool, options
         if true, plot category names for uncertain factors
-
+    steps : Dict[str, int]
+        step for level category labels, by level. Default step size is 1.
     """
 
     for entry in ["bottom", "top", "right", "left"]:
@@ -287,12 +295,14 @@ def plot_index(
         indices = indices[::-1]
 
     multiplicity = [1] + list(it.accumulate(map(len, levels), op.mul))
-
     for i, level in enumerate(levels):
+        step = steps.get(level.name, 1) if steps else 1
+        if len(level) - 2 < step:
+            step = 1
         for j, label in enumerate(
             it.chain.from_iterable(it.repeat(level, multiplicity[i]))
         ):
-            if plot_cats:
+            if plot_cats and not (j % len(level)) % step:
                 plot_category(
                     ax=ax,
                     axis=axis,
@@ -346,6 +356,7 @@ def plot_pivot_table(
     """
 
     hide_lines = kwargs.pop("hide_lines", False)
+    steps = kwargs.pop("steps", None)
 
     with sns.axes_style("white"):
 
@@ -389,6 +400,7 @@ def plot_pivot_table(
             plot_labels=plot_labels,
             plot_cats=plot_cats,
             hide_lines=hide_lines,
+            steps=steps,
         )
 
         # plot column labeling
@@ -402,6 +414,7 @@ def plot_pivot_table(
             plot_labels=plot_labels,
             plot_cats=plot_cats,
             hide_lines=hide_lines,
+            steps=steps,
         )
 
     return fig
