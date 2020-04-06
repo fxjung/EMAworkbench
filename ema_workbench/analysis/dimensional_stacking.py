@@ -178,7 +178,7 @@ def plot_category(ax, axis, i, label, pos, level):
             rotation="vertical"
             if (level > 0) & (len(str(label)) > 0)
             else "horizontal",
-            fontsize=8,
+            # fontsize=8,
         )
 
     else:
@@ -192,7 +192,7 @@ def plot_category(ax, axis, i, label, pos, level):
             rotation="vertical"
             if (level == 0) & (len(str(label)) > 0)
             else "horizontal",
-            fontsize=8,
+            # fontsize=8,
         )
 
 
@@ -206,7 +206,8 @@ def plot_index(
     hide_lines=False,
     steps=None,
 ):
-    """helper function for visualizing the hierarchical index
+    """
+    helper function for visualizing the hierarchical index
 
     Parameters
     ----------
@@ -286,8 +287,9 @@ def plot_index(
         indices = index.values
 
     except AttributeError:
+        # breakpoint()
         nr_levels = 1
-        levels = [index.values.tolist()]
+        levels = [index]
         indices = list(zip(index.values))
 
     if axis == 1:
