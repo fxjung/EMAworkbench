@@ -21,6 +21,8 @@ import itertools as it
 import operator as op
 import seaborn as sns
 from typing import Union, Tuple, List, Dict, Set
+from mpl_toolkits.axes_grid1 import Divider, Size
+from mpl_toolkits.axes_grid1.mpl_axes import Axes
 
 from . import feature_scoring
 from ..util import get_module_logger
@@ -86,31 +88,6 @@ def discretize(data, nbins=3, with_labels=False):
         discretized[column] = indices
 
     return discretized
-
-
-def dim_ratios(axis, figsize):
-    """Get the proportions of the figure taken up by each axes
-
-    adapted from seaborn
-    """
-    figdim = figsize[axis]
-    # Get resizing proportion of this figure for the dendrogram and
-    # colorbar, so only the heatmap gets bigger but the dendrogram stays
-    # the same size.
-    dendrogram = min(2.0 / figdim, 0.2)
-
-    # add the colorbar
-    colorbar_width = 0.8 * dendrogram
-    colorbar_height = 0.2 * dendrogram
-    if axis == 0:
-        ratios = [colorbar_width, colorbar_height]
-    else:
-        ratios = [colorbar_height, colorbar_width]
-
-    # Add the ratio for the heatmap itself
-    ratios += [0.8]
-
-    return ratios
 
 
 def plot_line(ax, axis, i, length, lw):
@@ -333,7 +310,14 @@ def plot_index(
 
 
 def plot_pivot_table(
-    table, plot_labels=True, plot_cats=True, figsize=(10, 10), cmap="viridis", **kwargs
+    *,
+    table,
+    plot_labels=True,
+    plot_cats=True,
+    figsize=(10, 10),
+    cmap="viridis",
+    title=None,
+    **kwargs,
 ):
     """ visualize a pivot table using colors
 
@@ -364,22 +348,24 @@ def plot_pivot_table(
 
         fig = plt.figure(figsize=figsize)
 
-        width_ratios = dim_ratios(figsize=figsize, axis=1)
-        height_ratios = dim_ratios(figsize=figsize, axis=0)
-
         gs = mpl.gridspec.GridSpec(
             3,
             3,
             wspace=0.01,
             hspace=0.01,
-            width_ratios=width_ratios,
-            height_ratios=height_ratios,
+            width_ratios=[0.05, 0.15, 0.8],
+            height_ratios=[0.18, 0.02, 0.8],
         )
 
-        ax_plot = fig.add_subplot(gs[2, 2])
-        ax_rows = fig.add_subplot(gs[2, 0:2], facecolor="white")
         ax_cols = fig.add_subplot(gs[0:2, 2], facecolor="white")
+        ax_rows = fig.add_subplot(gs[2, 0:2], facecolor="white")
         cax = fig.add_subplot(gs[0, 0])
+        ax_plot = fig.add_subplot(gs[2, 2])
+
+        # divider = Divider(
+        #     fig, (0, 0, 1, 1), [Size.Scaled(0.5), Size.Scaled(0.5)], [Size.Scaled(1)]
+        # )
+        # cax.set_axes_locator(divider.new_locator(nx=1, ny=1))
 
         # actual plotting
         plot_data = table.values
@@ -418,6 +404,9 @@ def plot_pivot_table(
             hide_lines=hide_lines,
             steps=steps,
         )
+
+    # fig.suptitle(title, fontsize=25)
+    # gs.tight_layout(fig, rect=[0, 0.03, 1, 0.95])
 
     return fig
 

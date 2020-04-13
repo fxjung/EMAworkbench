@@ -50,18 +50,6 @@ class DimStackTestCase(unittest.TestCase):
         plt.draw()
         plt.close('all')
     
-    def test_dim_ratios(self):
-        ratios = dimensional_stacking.dim_ratios(0, (6,6))
-        
-        for x,y in zip(ratios,
-                       [0.16, 0.04, 0.8]):
-                self.assertAlmostEqual(x, y)
-
-        ratios = dimensional_stacking.dim_ratios(1, (6,6))
-        for x,y in zip(ratios,
-                       [0.04, 0.16, 0.8]):
-                self.assertAlmostEqual(x, y)
-
     
     def test_plot_pivot_table(self):
         pass
