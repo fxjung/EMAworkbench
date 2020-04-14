@@ -360,7 +360,7 @@ def plot_pivot_table(
         ax_cols = fig.add_subplot(gs[0:2, 2], facecolor="white")
         ax_rows = fig.add_subplot(gs[2, 0:2], facecolor="white")
         cax = fig.add_subplot(gs[0, 0])
-        ax_plot = fig.add_subplot(gs[2, 2])
+        ax_plot = fig.add_subplot(gs[2, 2],facecolor='green')
 
         # divider = Divider(
         #     fig, (0, 0, 1, 1), [Size.Scaled(0.5), Size.Scaled(0.5)], [Size.Scaled(1)]
